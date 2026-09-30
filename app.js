@@ -26,8 +26,9 @@
       doc.querySelectorAll('script').forEach(el => el.remove());
       doc.querySelectorAll('a').forEach(el => { el.target = '_blank'; el.rel = 'noopener noreferrer'; });
       frame.addEventListener('load', () => {
-        const resize = () => { frame.style.height = `${Math.ceil(frame.contentDocument.documentElement.scrollHeight) + 8}px`; };
-        resize(); new ResizeObserver(resize).observe(frame.contentDocument.body);
+        const contentRoot = frame.contentDocument.querySelector('main');
+        const resize = () => { frame.style.height = `${Math.ceil(contentRoot.getBoundingClientRect().height) + 48}px`; };
+        resize(); new ResizeObserver(resize).observe(contentRoot);
         frame.contentDocument.querySelectorAll('img').forEach(img => img.addEventListener('load', resize));
       }, { once: true });
       frame.srcdoc = '<!doctype html>' + doc.documentElement.outerHTML;
@@ -39,7 +40,7 @@
       failure('しおりを開けませんでした。通信状態を確認して再読み込みするか、案内された共有リンクをもう一度開いてください。');
     }
   }
-  addEventListener('pagehide', () => { if (pdfUrl) URL.revokeObjectURL(pdfUrl); });
+
   addEventListener('hashchange', () => location.reload());
   openGuide();
 })();
