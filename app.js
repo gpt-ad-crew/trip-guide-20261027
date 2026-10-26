@@ -26,7 +26,38 @@
       doc.querySelectorAll('script').forEach(el => el.remove());
       doc.querySelectorAll('a').forEach(el => { el.target = '_blank'; el.rel = 'noopener noreferrer'; });
       frame.addEventListener('load', () => {
-        const contentRoot = frame.contentDocument.body;
+        const frameDoc = frame.contentDocument;
+        const labels = [...frameDoc.querySelectorAll('.tabs label[for]')];
+        if (labels.length) {
+          const nav = document.createElement('nav');
+          nav.id = 'guide-tabs';
+          nav.setAttribute('aria-label', 'しおりの表示切り替え');
+          for (const label of labels) {
+            const input = frameDoc.getElementById(label.htmlFor);
+            if (!input) continue;
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.dataset.tab = input.id;
+            button.textContent = label.firstChild.textContent.trim();
+            button.setAttribute('aria-pressed', String(input.checked));
+            button.addEventListener('click', () => {
+              input.checked = true;
+              nav.querySelectorAll('button').forEach(el => el.setAttribute('aria-pressed', String(el === button)));
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+            nav.append(button);
+          }
+          document.getElementById('toolbar').append(nav);
+          frameDoc.querySelector('.tabs').style.display = 'none';
+        }
+        frameDoc.querySelectorAll('a[href="#top"]').forEach(link => {
+          link.removeAttribute('target');
+          link.addEventListener('click', event => {
+            event.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          });
+        });
+        const contentRoot = frameDoc.body;
         const resize = () => { frame.style.height = `${Math.ceil(contentRoot.getBoundingClientRect().height) + 1}px`; };
         resize(); new ResizeObserver(resize).observe(contentRoot);
         frame.contentDocument.querySelectorAll('img').forEach(img => img.addEventListener('load', resize));
