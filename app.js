@@ -26,8 +26,8 @@
       doc.querySelectorAll('script').forEach(el => el.remove());
       doc.querySelectorAll('a').forEach(el => { el.target = '_blank'; el.rel = 'noopener noreferrer'; });
       frame.addEventListener('load', () => {
-        const contentRoot = frame.contentDocument.querySelector('main');
-        const resize = () => { frame.style.height = `${Math.ceil(contentRoot.getBoundingClientRect().height) + 48}px`; };
+        const contentRoot = frame.contentDocument.body;
+        const resize = () => { frame.style.height = `${Math.ceil(contentRoot.getBoundingClientRect().height) + 1}px`; };
         resize(); new ResizeObserver(resize).observe(contentRoot);
         frame.contentDocument.querySelectorAll('img').forEach(img => img.addEventListener('load', resize));
       }, { once: true });
